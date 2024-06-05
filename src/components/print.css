@@ -1,0 +1,73 @@
+@media print {
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+  
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  
+    .print-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      padding: 5px;
+      box-sizing: border-box;
+      font-size: 8pt; /* กำหนดขนาดตัวอักษรเริ่มต้นเป็น 12pt */
+    }
+  
+    .print-content > div {
+      width: 100%;
+      max-width: 680px;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+  
+    .print-content input,
+    .print-content textarea {
+      max-width: 100%; /* กำหนดให้ช่อง input และ textarea มีความกว้างสูงสุดเท่ากับขนาดของเนื้อหา */
+      font-size: inherit; /* สืบทอดขนาดตัวอักษรจากองค์ประกอบ .print-content */
+    }
+  
+    .print-content textarea {
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+  
+    .print-content * {
+      font-size: inherit; /* สืบทอดขนาดตัวอักษรจากองค์ประกอบ .print-content */
+    }
+  
+    .print-content h1,
+    .print-content h5 {
+      font-size: 10pt; /* กำหนดขนาดตัวอักษรสำหรับหัวข้อเป็น 16pt */
+    }
+    .print-content {
+        width: 100%;
+        max-width: none; /* ขยายขนาดเต็มตามหน้ากระดาษ */
+      }
+    
+    .qr-code-container {
+        width: 100%; /* ให้คอนเทนเนอร์ปรับกว้างตามพื้นที่ที่มี */
+      }
+      
+      .qr-code {
+        flex: 1; /* ให้ทุก QR Code ในคอนเทนเนอร์ปรับขนาดตามพื้นที่ที่จัดสรร */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+  
+    /* ซ่อนองค์ประกอบอื่นๆ ที่ไม่ต้องการพิมพ์ */
+    .nav,
+    .navbar,
+    .nav-header,
+    .text-input-section {
+      display: none !important;
+    }
+  }
