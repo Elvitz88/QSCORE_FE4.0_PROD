@@ -2,12 +2,12 @@ import React from 'react';
 import QRCode from 'qrcode.react';
 
 const QRCodeGenerator = ({ data }) => {
-    const { QueueNo, QueueDate, InspectionLot, Batch, ReceivingPlant, Material, Vendor } = data;
+    const { QueueNo, QueueDate, InspectionLot, Batch, Receiving_Plant, Material, Vendor } = data;
 
     // Directly construct QR code values for first and second inspections.
     const qrCodeValues = [
-        `${QueueNo},${QueueDate},${InspectionLot},${Batch},${ReceivingPlant},${Material},${Vendor},0010`,
-        `${QueueNo},${QueueDate},${InspectionLot},${Batch},${ReceivingPlant},${Material},${Vendor},0020`,
+        `${QueueNo},${QueueDate},${InspectionLot},${Batch},${Receiving_Plant},${Material},${Vendor},0010`,
+        `${QueueNo},${QueueDate},${InspectionLot},${Batch},${Receiving_Plant},${Material},${Vendor},0020`,
     ];
 
     return (

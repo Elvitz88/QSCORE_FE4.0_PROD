@@ -4,16 +4,16 @@ import TextOutput from "../components/TextOutput";
 
 function Home() {
   const [data, setData] = useState({
-    ReceivingPlant: "",
+    Receiving_Plant: "",
     QueueDate: "",
     QueueNo: "",
     InspectionLot: "",
     Batch: "",
     Material: "",
-    MaterialDescription: "",
+    Material_Description: "",
     Vendor: "",
     SupplyingPlant: "",
-    VendorName: "",
+    Vendor_Name: "",
     Moisture: "",
     PlateNoHead: "",
     PlateNoTail: "",
@@ -22,29 +22,32 @@ function Home() {
     sampling: "",
     LastChangedBy: ""
   });
+
   const handleProcessText = (processedData) => {
     setData(processedData);
   };
+
   const [clearSignal, setClearSignal] = useState(false);
+
   const handleClearData = () => {
     setData({
-      ReceivingPlant: "",
+      Receiving_Plant: "",
       QueueDate: "",
       QueueNo: "",
       InspectionLot: "",
       Batch: "",
       Material: "",
-      MaterialDescription: "",
+      Material_Description: "",
       Vendor: "",
       SupplyingPlant: "",
-      VendorName: "",
+      Vendor_Name: "",
       Moisture: "",
       PlateNoHead: "",
       PlateNoTail: "",
-      qscore: "", // Clearing qscore
+      qscore: "",
       evaluate: "",
       sampling: "",
-      LastChangedBy: "",
+      LastChangedBy: ""
     });
     setClearSignal((prev) => !prev); // Toggle to trigger effect in child components
   };
@@ -54,15 +57,22 @@ function Home() {
       {/* Text input */}
       <div className="grid w-50">
         <div>
-          <TextInput onProcessText={handleProcessText} onClearData={handleClearData}/>
+          <TextInput
+            onProcessText={handleProcessText}
+            onClearExternal={handleClearData}
+            apiUrl="/api/qscore"
+          />
         </div>
       </div>
 
       {/* Text output  */}
       <div className="">
         <div>
-          {/* <Test /> */}
-          <TextOutput data={data} clearSignal={clearSignal} onClearData={handleClearData}/>
+          <TextOutput
+            data={data}
+            clearSignal={clearSignal}
+            onClearData={handleClearData}
+          />
         </div>
       </div>
     </div>

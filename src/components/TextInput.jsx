@@ -1,59 +1,101 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import columnMapping from '../assets/ColumnKey';
 import useFetchQScore from '../services/FetchQScore';
 
 const TextInput = ({ onProcessText, onClearExternal, apiUrl }) => {
     const [text, setText] = useState('');
-    const { fetchQScore, result, isLoading, error } = useFetchQScore(apiUrl);
+    const [shouldProcess, setShouldProcess] = useState(false);
+    const { fetchQScore, result, isLoading, error, clearResult } = useFetchQScore(apiUrl);
 
-    useEffect(() => {
-        if (result) {
-            const processedData = processText(text);
-            const combinedData = { ...processedData, ...result };
-            onProcessText(combinedData);
-        }
-    }, [result, text, onProcessText]);
+    const handleTextChange = useCallback((event) => {
+        setText(event.target.value);
+    }, []);
 
-    const handleTextChange = (event) => setText(event.target.value);
-    const handleClear = () => {
+    const handleClear = useCallback(() => {
         setText('');
+        clearResult();
+        setShouldProcess(false);
         onClearExternal();
-    };
+    }, [clearResult, onClearExternal]);
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         const processedData = processText(text);
-        console.log('text after processedData :', processedData);
-        if (processedData.Vendor && processedData.Material) {
-            await fetchQScore({
-                instlot: processedData.InspectionLot,
-                batch: processedData.Batch,
-                plant: processedData.ReceivingPlant,
-                vendor: processedData.Vendor,
+        console.log('text after processedData:', processedData);
+
+        // Use processData.SupplyingPlant if Vendor is not found
+        const vendor = processedData.Vendor || processedData.SupplyingPlant;
+
+        if (vendor && processedData.Material) {
+            console.log('Params:', {
+                vendor,
                 material: processedData.Material,
             });
+            await fetchQScore({
+                vendor,
+                material: processedData.Material,
+            });
+            setShouldProcess(true); // Set the flag to true
         } else {
             console.log("Required data is missing");
         }
-    };
+    }, [text, fetchQScore]);
 
-    const processText = (text) => {
+    useEffect(() => {
+        if (result && shouldProcess) {
+            const processedData = processText(text);
+            const combinedData = { ...processedData, ...result };
+            onProcessText(combinedData);
+            setShouldProcess(false); // Reset the flag
+        }
+    }, [result, shouldProcess, text, onProcessText]);
+
+    const processText = useCallback((text) => {
         const lines = text.split('\n');
         let dataDict = {};
+        console.log('Lines:', lines); // Debug log
+
         lines.forEach(line => {
-            if (line.includes('\t')) {
-                let [key, value] = line.split('\t').map(item => item.trim());
-                let modifiedKey = columnMapping[key] || key.replace(/\s+/g, '');
-                dataDict[modifiedKey] = value;
+            // Hardcoded mapping for problematic keys
+            if (line.startsWith("Plate No. (Head)")) {
+                dataDict["PlateNo_Head"] = line.replace("Plate No. (Head)", "").trim();
+                return;
+            }
+            if (line.startsWith("Plate No. (Tail)")) {
+                dataDict["PlateNo_Tail"] = line.replace("Plate No. (Tail)", "").trim();
+                return;
+            }
+
+            for (let key in columnMapping) {
+                let regex = new RegExp(`^${key}(\\s{1,}|\\s-\\s)`);
+                if (regex.test(line)) {
+                    let value = line.substring(key.length).trim();
+                    if (key.includes("Description")) {
+                        value = value.replace(/^Description\s*/, '');
+                    }
+                    let modifiedKey = columnMapping[key];
+
+                    // Check if key is Material and exclude unwanted values
+                    if (modifiedKey === "Material" && /document|Doc\.Item|Year/.test(value)) {
+                        continue;
+                    }
+
+                    console.log('Original Key:', key, 'Value:', value); // Debug log
+                    console.log('Mapping:', key, '->', modifiedKey); // Debug log
+                    dataDict[modifiedKey] = value;
+                    break;
+                }
             }
         });
+
+        console.log('Processed Data Dictionary:', dataDict); // Debug log
         return dataDict;
-    };
+    }, []);
 
     return (
         <div>
             <div className="flex justify-center font-custom text-input-section">
                 <textarea
-                    style={{ height: '650px', width: '350px' }}
+                    style={{ height: '560px', width: '350px', resize: 'none' }}
                     className="textarea textarea-secondary"
                     placeholder="insert Queue in here"
                     value={text}

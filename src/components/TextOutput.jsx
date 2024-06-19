@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 import QRCodeGenerator from "./QRCodeGenerator";
-
-import jsPDF from "jspdf";
 import domToImage from "dom-to-image";
 
 const AutoResizeTextarea = ({ data, clearSignal }) => {
@@ -45,36 +43,25 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
   if (!data) {
     return <div>Loading...</div>;
   }
-  if (!data) {
-    return <div>Loading...</div>;
-  }
 
   const handleCapture = () => {
     const printContent = document.querySelector('.print-content');
     domToImage.toPng(printContent)
       .then(dataUrl => {
-        const pdf = new jsPDF('l', 'mm', 'a5');  // A4 แนวนอน
-        const width = 210;  // กำหนดความกว้างที่ต้องการใน mm
-        const height = 148;
-  
-        // ใส่ภาพใน PDF โดยมีขนาดตามที่คำนวณ
-        pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
-        pdf.save('captured.pdf');
-        printPDF(pdf.output('datauristring'));
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write('<html><head><title>Print Form</title></head><body>');
+        printWindow.document.write('<img src="' + dataUrl + '" style="width:100%"/>');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.onload = function() {
+          printWindow.print();
+        };
       })
       .catch(error => {
         console.error('Error capturing screen:', error);
       });
   };
-  
-  const printPDF = (pdfData) => {
-    const pdfWindow = window.open("");
-    pdfWindow.document.write('<iframe width="100%" height="100%" src="' + pdfData + '"></iframe>');
-    pdfWindow.print();
-    pdfWindow.close();
-  };
-  
-  
+
 
   return (
     <>
@@ -108,10 +95,10 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
                     </label>
                     <input
                       type="text"
-                      id="ReceivingPlant"
+                      id="Receiving_Plant"
                       className="block w-full p-2 text-black border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-100 dark:border-gray-400 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="ReceivingPlant"
-                      value={data.ReceivingPlant || ""}
+                      placeholder="Receiving_Plant"
+                      value={data.Receiving_Plant || ""}
                       readOnly
                     />
                   </div>
@@ -142,7 +129,7 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
                       type="text"
                       id="QueueNo"
                       className="block w-full p-2 text-black border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-100 dark:border-gray-400 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="ReceivingPlant"
+                      placeholder="QueueNo"
                       value={data.QueueNo || ""}
                       readOnly
                     />
@@ -217,9 +204,9 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
                     type="text"
                     id="PlateNoTail"
                     className="block w-full p-2 text-black border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-100 dark:border-gray-400 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="PlateNoHead"
-                    value={`${data.PlateNoHead || ""} / ${
-                      data.PlateNoTail || ""
+                    placeholder="PlateNo_Head"
+                    value={`${data.PlateNo_Head || ""} / ${
+                      data.PlateNo_Tail || ""
                     }`}
                     readOnly
                   />
@@ -243,18 +230,18 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
 
                 <div className="flex items-center gap-4">
                   <label
-                    htmlFor="MaterialDescription"
+                    htmlFor="Material_Description"
                     className="w-40 text-sm font-medium text-gray-900 dark:text-black"
                   >
                     ชื่อวัตถุดิบ:
                   </label>
                   <input
                     type="textarea"
-                    id="MaterialDescription"
+                    id="Material_Description"
                     className="block w-full p-2 text-black border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-100 dark:border-gray-400 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="MaterialDescription"
+                    placeholder="Material_Description"
                     value={`${data.Material || ""}  /  ${
-                      data.MaterialDescription || ""
+                      data.Material_Description || ""
                     }`}
                     style={{ resize: "none", overflow: "hidden" }}
                     readOnly
@@ -280,18 +267,18 @@ const TextOutput = ({ data, clearSignal, onClearData }) => {
 
                 <div className="flex items-center gap-4">
                   <label
-                    htmlFor="VendorName"
+                    htmlFor="Vendor_Name"
                     className="w-40 text-sm font-medium text-gray-900 dark:text-black"
                   >
                     ชื่อผู้ส่ง:
                   </label>
                   <input
                     type="textarea"
-                    id="VendorName"
+                    id="Vendor_Name"
                     className="block w-full p-2 text-black border border-gray-300 rounded-lg bg-gray-50 sm:text-xs focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-100 dark:border-gray-400 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="VendorName"
+                    placeholder="Vendor_Name"
                     value={`${data.Vendor || data.SupplyingPlant || ""}  /  ${
-                      data.VendorName || ""
+                      data.Vendor_Name || ""
                     }`}
                     style={{ resize: "none", overflow: "hidden" }}
                     readOnly
